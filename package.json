@@ -1,0 +1,25 @@
+{
+  "name": "scraping-news",
+  "version": "1.0.0",
+  "description": "HW18 / All the news that's fit to scrape",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robertmoore40/Scraping-News.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/robertmoore40/Scraping-News/issues"
+  },
+  "homepage": "https://github.com/robertmoore40/Scraping-News#readme",
+  "dependencies": {
+    "axios": "^0.19.1",
+    "cheerio": "^1.0.0-rc.3",
+    "express": "^4.17.1"
+  }
+}
