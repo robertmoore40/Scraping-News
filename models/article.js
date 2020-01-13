@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const schema = mongoose.schema;
+const Schema = mongoose.Schema;
 
-const articleSchema = new schema({
+const ArticleSchema = new Schema({
     
     headline: {
         type: String,
@@ -17,14 +17,14 @@ const articleSchema = new schema({
     },
     comment : [
         {
-            type: schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: "Comment"
         }
     ]
 
 });
 
-let Article = mongoose.model("Article", articleSchema);
+let Article = mongoose.model("Article", ArticleSchema);
 module.exports = Article;
 
 
