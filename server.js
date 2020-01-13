@@ -15,29 +15,24 @@ const app = express();
 console.log('express, ports, and database loaded');
 // app.use(express.static('public'));
 
-// app.get('/scrape', function(req,res){
-    console.log('scrape route reached');
-    axios.get('https://www.foxnews.com').then(function(response){
-    // cheerio time
-    var $ = cheerio.load(response.data);
-    var results = []
-    console.log('cheerio loaded')
 
-    $('li.related-item').each(function (i, element) {
-        var title = $(element).text();
-        var link = $(element).children().attr('href');
+axios.get("https://www.nytimes.com/").then(function(response) {
 
+    const $ = cheerio.load(response.data);
+
+    $("article").each(function(i, element) {
     
-    results.push({
-        title: title,
-        link :link
-      })});
-    console.log("|||||||||||||||||||||||||||||||||||||||||||||||");
-    console.log(results);
-    // console.log(headline);
-    console.log("|||||||||||||||||||||||||||||||||||||||||||||||");
-    
+      var result = [];
+      
+    //   var headline = $(element).find("h2").text().trim();
+    //   var url = 'https://www.nytimes.com' + $(element).find("a").attr("href");
+    //   var summary = $(element).find("p").text().trim();
+      
+      result.headline = $(element).find("h2").text().trim();
+      result.url = 'https://www.nytimes.com' + $(element).find("a").attr("href");
+      result.summary = $(element).find("p").text().trim();
 
-    });
-// });
 
+      console.log(result)});
+
+  });
