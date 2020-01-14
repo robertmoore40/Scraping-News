@@ -26,15 +26,25 @@ const MONGODB_URI =
   process.env.MONGODB_URI || "mongodb://localhost/mongoosepractice";
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", function() {
-  console.log("Connected to Mongoose!");
-});
+// const db = mongoose.connection;
+// db.on("error", console.error.bind(console, "connection error:"));
+// db.once("open", function() {
+//   console.log("Connected to Mongoose!");
+// });
 
 console.log('express, ports, and database loaded');
 // app.use(express.static('public'));
 
+
+app.listen(PORT, function() {
+  console.log("Listening on Port " + PORT);
+});
+
+
+
+// use as an API route?
+// move to
+function initialApiRoute () {
 axios.get("https://www.nytimes.com/").then(function(response) {
 
     const $ = cheerio.load(response.data);
@@ -49,4 +59,4 @@ axios.get("https://www.nytimes.com/").then(function(response) {
 
       console.log(result)});
 
-  });
+  })};
