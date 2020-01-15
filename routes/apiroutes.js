@@ -44,7 +44,7 @@ axios.get("https://www.nytimes.com/").then(function(response) {
 // Retrieve results from mongo
 app.get("/all", function(req, res) {
   // Find all notes in the notes collection
-  db.notes.find({}, function(error, found) {
+  db.Article.find({}, function(error, found) {
     // Log any errors
     if (error) {
       console.log(error);
@@ -82,7 +82,7 @@ app.get("/find/:id", function(req, res) {
   // as (mongojs.ObjectId(IdYouWantToFind))
 
   // Find just one result in the notes collection
-  db.notes.findOne(
+  db.Article.findOne(
     {
       // Using the id in the url
       _id: mongojs.ObjectId(req.params.id)
@@ -109,7 +109,7 @@ app.post("/update/:id", function(req, res) {
   // as (mongojs.ObjectId(IdYouWantToFind))
 
   // Update the note that matches the object id
-  db.notes.update(
+  db.Article.update(
     {
       _id: mongojs.ObjectId(req.params.id)
     },
@@ -141,7 +141,7 @@ app.post("/update/:id", function(req, res) {
 // Delete One from the DB
 app.get("/delete/:id", function(req, res) {
   // Remove a note using the objectID
-  db.notes.remove(
+  db.Comment.deleteOne(
     {
       _id: mongojs.ObjectID(req.params.id)
     },
@@ -164,7 +164,7 @@ app.get("/delete/:id", function(req, res) {
 // Clear the DB
 app.get("/clearall", function(req, res) {
   // Remove every note from the notes collection
-  db.notes.remove({}, function(error, response) {
+  db.Comment.deleteMany({}, function(error, response) {
     // Log any errors to the console
     if (error) {
       console.log(error);
@@ -179,6 +179,3 @@ app.get("/clearall", function(req, res) {
   });
 });
 
-
-
-// Dependencies
