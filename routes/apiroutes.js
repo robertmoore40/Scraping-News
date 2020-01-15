@@ -1,4 +1,16 @@
-var db = mongojs(databaseUrl, collections);
+const express = require("express");
+const mongojs = require("mongojs");
+const axios = require("axios");
+const cheerio = require("cheerio");
+const app = express();
+
+// Database configuration
+const databaseUrl = "scraper";
+const collections = ["scrapedData"];
+const db = require("../models");
+
+
+const db = mongojs(databaseUrl, collections);
 
 // This makes sure that any errors are logged if mongodb runs into an issue
 db.on("error", function(error) {
@@ -6,103 +18,167 @@ db.on("error", function(error) {
 });
 
 
-function initialApiRoute () {
-    axios.get("https://www.nytimes.com/").then(function(response) {
-    
-        const $ = cheerio.load(response.data);
-    
-        $("article").each(function(i, element) {
-        
-          var result = [];
-          
-          result.headline = $(element).find("h2").text().trim();
-          result.url = 'https://www.nytimes.com' + $(element).find("a").attr("href");
-          result.summary = $(element).find("p").text().trim();
-    
-          console.log(result)});
-    
-      })}
-
-
-// Dependencies
-var express = require("express");
-var mongojs = require("mongojs");
-// Require axios and cheerio. This makes the scraping possible
-var axios = require("axios");
-var cheerio = require("cheerio");
-
-// Initialize Express
-var app = express();
-
-// Database configuration
-var databaseUrl = "scraper";
-var collections = ["scrapedData"];
-
-// Hook mongojs configuration to the db variable
-var db = mongojs(databaseUrl, collections);
-db.on("error", function(error) {
-  console.log("Database Error:", error);
-});
-
-// Main route (simple Hello World Message)
 app.get("/", function(req, res) {
-  res.send("Hello world");
+  res.sendFile(path.join(__dirname + "./public/index.html"));
 });
 
-// Retrieve data from the db
+// use as an API route?
+// move to
+app.get("/newscrape"), function(req, res){
+axios.get("https://www.nytimes.com/").then(function(response) {
+
+    const $ = cheerio.load(response.data);
+
+    $("article").each(function(i, element) {
+    
+      var result = [];
+      
+      result.headline = $(element).find("h2").text().trim();
+      result.url = 'https://www.nytimes.com' + $(element).find("a").attr("href");
+      result.summary = $(element).find("p").text().trim();
+
+      console.log(result)});
+
+  })};
+
+// Retrieve results from mongo
 app.get("/all", function(req, res) {
-  // Find all results from the scrapedData collection in the db
-  db.scrapedData.find({}, function(error, found) {
-    // Throw any errors to the console
+  // Find all notes in the notes collection
+  db.notes.find({}, function(error, found) {
+    // Log any errors
     if (error) {
       console.log(error);
     }
-    // If there are no errors, send the data to the browser as json
     else {
+      // Otherwise, send json of the notes back to user
+      // This will fire off the success function of the ajax request
       res.json(found);
     }
   });
 });
 
-// Scrape data from one site and place it into the mongodb db
-app.get("/scrape", function(req, res) {
-  // Make a request via axios for the news section of `ycombinator`
-  axios.get("https://news.ycombinator.com/").then(function(response) {
-    // Load the html body from axios into cheerio
-    var $ = cheerio.load(response.data);
-    // For each element with a "title" class
-    $(".title").each(function(i, element) {
-      // Save the text and href of each link enclosed in the current element
-      var title = $(element).children("a").text();
-      var link = $(element).children("a").attr("href");
 
-      // If this found element had both a title and a link
-      if (title && link) {
-        // Insert the data in the scrapedData db
-        db.scrapedData.insert({
-          title: title,
-          link: link
-        },
-        function(err, inserted) {
-          if (err) {
-            // Log the error if one is encountered during the query
-            console.log(err);
-          }
-          else {
-            // Otherwise, log the inserted data
-            console.log(inserted);
-          }
-        });
+// function initialApiRoute () {
+//     axios.get("https://www.nytimes.com/").then(function(response) {
+    
+//         const $ = cheerio.load(response.data);
+    
+//         $("article").each(function(i, element) {
+        
+//           var result = [];
+          
+//           result.headline = $(element).find("h2").text().trim();
+//           result.url = 'https://www.nytimes.com' + $(element).find("a").attr("href");
+//           result.summary = $(element).find("p").text().trim();
+    
+//           console.log(result)});
+    
+//       })}
+
+
+// Select just one note by an id
+app.get("/find/:id", function(req, res) {
+  // When searching by an id, the id needs to be passed in
+  // as (mongojs.ObjectId(IdYouWantToFind))
+
+  // Find just one result in the notes collection
+  db.notes.findOne(
+    {
+      // Using the id in the url
+      _id: mongojs.ObjectId(req.params.id)
+    },
+    function(error, found) {
+      // log any errors
+      if (error) {
+        console.log(error);
+        res.send(error);
       }
-    });
+      else {
+        // Otherwise, send the note to the browser
+        // This will fire off the success function of the ajax request
+        console.log(found);
+        res.send(found);
+      }
+    }
+  );
+});
+
+// Update just one note by an id
+app.post("/update/:id", function(req, res) {
+  // When searching by an id, the id needs to be passed in
+  // as (mongojs.ObjectId(IdYouWantToFind))
+
+  // Update the note that matches the object id
+  db.notes.update(
+    {
+      _id: mongojs.ObjectId(req.params.id)
+    },
+    {
+      // Set the title, note and modified parameters
+      // sent in the req body.
+      $set: {
+        title: req.body.title,
+        note: req.body.note,
+        modified: Date.now()
+      }
+    },
+    function(error, edited) {
+      // Log any errors from mongojs
+      if (error) {
+        console.log(error);
+        res.send(error);
+      }
+      else {
+        // Otherwise, send the mongojs response to the browser
+        // This will fire off the success function of the ajax request
+        console.log(edited);
+        res.send(edited);
+      }
+    }
+  );
+});
+
+// Delete One from the DB
+app.get("/delete/:id", function(req, res) {
+  // Remove a note using the objectID
+  db.notes.remove(
+    {
+      _id: mongojs.ObjectID(req.params.id)
+    },
+    function(error, removed) {
+      // Log any errors from mongojs
+      if (error) {
+        console.log(error);
+        res.send(error);
+      }
+      else {
+        // Otherwise, send the mongojs response to the browser
+        // This will fire off the success function of the ajax request
+        console.log(removed);
+        res.send(removed);
+      }
+    }
+  );
+});
+
+// Clear the DB
+app.get("/clearall", function(req, res) {
+  // Remove every note from the notes collection
+  db.notes.remove({}, function(error, response) {
+    // Log any errors to the console
+    if (error) {
+      console.log(error);
+      res.send(error);
+    }
+    else {
+      // Otherwise, send the mongojs response to the browser
+      // This will fire off the success function of the ajax request
+      console.log(response);
+      res.send(response);
+    }
   });
-
-  // Send a "Scrape Complete" message to the browser
-  res.send("Scrape Complete");
 });
 
 
-// Listen on port 3000
-app.listen(3000, function() {
-  console.log("App running on port 3000!");
-});
+
+// Dependencies

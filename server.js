@@ -4,6 +4,21 @@ const mongoose = require('mongoose');
 const cheerio = require('cheerio');
 const axios = require('axios');
 
+var logger = require("morgan");
+var db = require("./models");
+// Use morgan logger for logging requests
+app.use(logger("dev"));
+// Parse request body as JSON
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+// Make public a static folder
+app.use(express.static("public"));
+
+// Connect to the Mongo DB
+mongoose.connect("mongodb://localhost/unit18Populater", { useNewUrlParser: true });
+
+// Routes
+
 console.log("required packages loaded");
 
 // const db = require('./models');
@@ -39,24 +54,3 @@ console.log('express, ports, and database loaded');
 app.listen(PORT, function() {
   console.log("Listening on Port " + PORT);
 });
-
-
-
-// use as an API route?
-// move to
-function initialApiRoute () {
-axios.get("https://www.nytimes.com/").then(function(response) {
-
-    const $ = cheerio.load(response.data);
-
-    $("article").each(function(i, element) {
-    
-      var result = [];
-      
-      result.headline = $(element).find("h2").text().trim();
-      result.url = 'https://www.nytimes.com' + $(element).find("a").attr("href");
-      result.summary = $(element).find("p").text().trim();
-
-      console.log(result)});
-
-  })};
