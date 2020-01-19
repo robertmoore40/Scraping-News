@@ -1,7 +1,4 @@
-// Exporting an object containing all of our models
-
-
 module.exports = {
-    Article: require("./article"),
-    Comment: require('./comment')
+    Article: require("./Article"),
+    Comment: require('./Comment')
 }

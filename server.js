@@ -36,37 +36,24 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
 console.log('express, ports, and database loaded');
 
-app.listen(PORT, function() {
-  console.log("Listening on Port " + PORT);
+var db = mongoose.connection;
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", function() {
+  console.log("Database Connected");
 });
 
-// API ROUTES
 
-app.get("/newscrape"), function(req, res){
-  axios.get("https://www.nytimes.com/").then(function(response) {
-  
-      const $ = cheerio.load(response.data);
-  
-      $("article").each(function(i, element) {
-      
-        var result = [];
-        
-        result.headline = $(element).find("h2").text().trim();
-        result.url = 'https://www.nytimes.com' + $(element).find("a").attr("href");
-        result.summary = $(element).find("p").text().trim();
-  
-        console.log(result)});  
-    
-          // Create a new Article using the `result` object built from scraping
-          db.Article.create(result)
-            .then(function(dbArticle) {
-              // View the added result in the console
-              console.log(dbArticle);
-              res.send("Scrape Complete");
-            })
-            .catch(function(err) {
-              // If an error occurred, log it
-              console.log(err);
-            });
-        });
-      };
+//Create localhost port
+var port = process.env.PORT || 3000;
+
+app.listen(port, function() {
+  console.log("Port # is " + port);
+});
+
+
+// API ROUTES
+var routes = require("./controller/controller.js");
+app.use("/", routes);
+
+
+
