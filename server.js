@@ -6,24 +6,17 @@ const axios = require('axios');
 
 var logger = require("morgan");
 var db = require("./models");
-// Use morgan logger for logging requests
+
+const app = express();
 app.use(logger("dev"));
-// Parse request body as JSON
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-// Make public a static folder
 app.use(express.static("public"));
 
-// Connect to the Mongo DB
-mongoose.connect("mongodb://localhost/unit18Populater", { useNewUrlParser: true });
-
-// Routes
-
+mongoose.connect("mongodb://localhost/db", { useNewUrlParser: true });
 console.log("required packages loaded");
-
-// const db = require('./models');
 const PORT = process.env.PORT || 3000;
-const app = express();
+
 
 // handlebars
 app.engine("handlebars",exphbs({defaultLayout: "main"}));
@@ -31,26 +24,49 @@ app.set("view engine", "handlebars");
 
 
 // To be changed in class when we study mongoose more
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/mongoosepractice',
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/db',
   { useNewUrlParser: true, useUnifiedTopology: true },
   () => {
     console.log("mongoose is connected")
     
   })
 const MONGODB_URI =
-  process.env.MONGODB_URI || "mongodb://localhost/mongoosepractice";
+  process.env.MONGODB_URI || "mongodb://localhost/db";
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
-// const db = mongoose.connection;
-// db.on("error", console.error.bind(console, "connection error:"));
-// db.once("open", function() {
-//   console.log("Connected to Mongoose!");
-// });
-
 console.log('express, ports, and database loaded');
-// app.use(express.static('public'));
-
 
 app.listen(PORT, function() {
   console.log("Listening on Port " + PORT);
 });
+
+// API ROUTES
+
+app.get("/newscrape"), function(req, res){
+  axios.get("https://www.nytimes.com/").then(function(response) {
+  
+      const $ = cheerio.load(response.data);
+  
+      $("article").each(function(i, element) {
+      
+        var result = [];
+        
+        result.headline = $(element).find("h2").text().trim();
+        result.url = 'https://www.nytimes.com' + $(element).find("a").attr("href");
+        result.summary = $(element).find("p").text().trim();
+  
+        console.log(result)});  
+    
+          // Create a new Article using the `result` object built from scraping
+          db.Article.create(result)
+            .then(function(dbArticle) {
+              // View the added result in the console
+              console.log(dbArticle);
+              res.send("Scrape Complete");
+            })
+            .catch(function(err) {
+              // If an error occurred, log it
+              console.log(err);
+            });
+        });
+      };
