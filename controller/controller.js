@@ -2,7 +2,6 @@ var express = require("express");
 var router = express.Router();
 var path = require("path");
 
-
 var cheerio = require("cheerio");
 
 var Comment = require("../models/Comment.js");
@@ -12,12 +11,18 @@ var Article = require("../models/Article.js");
 router.get("/", function(req, res) {
     res.send("Hello World")
   });
+
+
+router.get("/test", function(req, res) {
+    res.send("This is a test")
+  });
   
   
-router.get("/api/fetch"), function(req, res){
+router.get("/scrape"), function(req, res){
     axios.get("https://www.nytimes.com/").then(function(response) {
     
         const $ = cheerio.load(response.data);
+        console.log('cheerio loaded')
     
         $("article").each(function(i, element) {
         
@@ -28,7 +33,7 @@ router.get("/api/fetch"), function(req, res){
           result.summary = $(element).find("p").text().trim();
     
           console.log(result)});  
-      
+            res.send(results);
             // Create a new Article using the `result` object built from scraping
             db.Article.create(result)
               .then(function(dbArticle) {
