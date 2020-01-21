@@ -51,6 +51,21 @@ router.get("/newscrape", function(req, res) {
     console.log(result);
     res.json({result})
 
+    /* 
+    
+        We now have an array of articles
+        On each article, run db.Article.create
+
+        var promies = [];
+        result.forEach(article => {
+            var newSave = new Article({title, link, img_url})
+            promises.push(newSave.save())
+        })
+        Promimse.all(promises).then(function(result) {
+            res.json(result)
+        }).catch(err => res.json(err))
+    */
+
     // Create a new Article using the `result` object built from scraping
     //   db.Article.create(result)
     //     .then(function(dbArticle) {

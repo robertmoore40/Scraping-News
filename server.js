@@ -24,18 +24,10 @@ console.log("required packages loaded");
 const PORT = process.env.PORT || 3000;
 
 
-// handlebars
 app.engine("handlebars",exphbs({defaultLayout: "main"}));
 app.set("view engine", "handlebars");
 
 
-// To be changed in class when we study mongoose more
-// mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/db',
-//   { useNewUrlParser: true, useUnifiedTopology: true },
-//   () => {
-//     console.log("mongoose is connected")
-    
-  // })
 const MONGODB_URI =
   process.env.MONGODB_URI || "mongodb://localhost/db";
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
@@ -48,7 +40,6 @@ db.once("open", function() {
   console.log("Database Connected");
 });
 
-//Create localhost port
 var port = process.env.PORT || 3000;
 
 app.listen(port, function() {
